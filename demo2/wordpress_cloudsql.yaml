@@ -14,8 +14,10 @@ spec:
       labels:
         app: wordpress
     spec:
+      terminationGracePeriodSeconds: 30
+      serviceAccountName: ksa
       containers:
-        - image: wordpress
+        - image: wordpress:5.2.2-apache
           name: wordpress
           env:
           - name: WORDPRESS_DB_HOST
@@ -44,23 +46,13 @@ spec:
         - name: cloudsql-proxy
           image: gcr.io/cloudsql-docker/gce-proxy:1.11
           command: ["/cloud_sql_proxy",
-                    "-instances=<cloudsql_instance_name>=tcp:3306",
+                    "-instances=test-kitchen-2020-02:us-central1:mysql-wordpress-instance1=tcp:3306"]
+
                     # If running on a VPC, the Cloud SQL proxy can connect via Private IP. See:
                     # https://cloud.google.com/sql/docs/mysql/private-ip for more info.
                     # "-ip_address_types=PRIVATE",
-                    "-credential_file=/secrets/cloudsql/key.json"]
-          securityContext:
-            runAsUser: 2  # non-root user
-            allowPrivilegeEscalation: false
-          volumeMounts:
-            - name: cloudsql-instance-credentials
-              mountPath: /secrets/cloudsql
-              readOnly: true
       volumes:
         - name: wordpress-persistent-storage
           persistentVolumeClaim:
             claimName: wordpress-volumeclaim
-        - name: cloudsql-instance-credentials
-          secret:
-            secretName: cloudsql-instance-credentials
 
