@@ -47,13 +47,30 @@
     Stuff the pod can read 
     <table border="1px">
         <tr>
+            <th>Scope</th>
             <th>File</th>
             <th>Value</th>
         </tr>
     {% for aDataValue in BadData %}
         <tr>
+            <td>{{ aDataValue.scope }}</td>
             <td>{{ aDataValue.file }}</td>
             <td>{{ aDataValue.value }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <h4>GCP Project Data</h4>
+    Stuff the pod can Access inside your GCP environment
+    <table border="1px">
+        <tr>
+            <th>Service</th>
+            <th>Name</th>
+        </tr>
+    {% for aDataPoint in GCPProject %}
+        <tr>
+            <td>{{ aDataPoint.service }}</td>
+            <td>{{ aDataPoint.name }}</td>
         </tr>
     {% endfor %}
     </table>

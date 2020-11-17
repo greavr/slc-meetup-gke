@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bad-pod-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deploy: bad-pod-deployment
+  template:
+    metadata:
+      labels:
+        deploy: bad-pod-deployment
+    spec:
+      runtimeClassName: gvisor
+      containers:
+      - name: bad-pod
+        image: us.gcr.io/gke-meetup-demo-295823/bad-pod:latest
+        imagePullPolicy: Always
+        ports:
+            - containerPort: 8080
