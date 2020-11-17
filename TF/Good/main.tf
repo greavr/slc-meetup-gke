@@ -4,6 +4,9 @@ terraform {
     google = {
       source = "hashicorp/google"
     }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+    }
   }
 }
 
@@ -11,6 +14,12 @@ terraform {
 provider "google" {
   project = var.gcp-project-name
   region = var.region
+}
+
+
+provider "kubernetes" {
+  load_config_file = true
+
 }
 
 provider "google-beta" {
@@ -103,6 +112,7 @@ resource "google_container_cluster" "more-secure" {
         create = "30m"
         update = "40m"
     }
+  
 }
 
 resource "google_container_node_pool" "pre-empt_nodepool1" {
@@ -129,5 +139,76 @@ resource "google_container_node_pool" "pre-empt_nodepool1" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring"
     ]
+  }
+}
+
+resource "google_sql_database" "database" {
+  name     = "cloudsql-database"
+  instance = google_sql_database_instance.instance.name
+}
+
+resource "google_sql_database_instance" "instance" {
+  name   = "cloudsql-database-instance"
+  region = "us-west2"
+  settings {
+    tier = "db-f1-micro"
+  }
+  deletion_protection  = "true"
+}
+
+resource "google_sql_user" "users" {
+  name     = "wordpress_sql_user"
+  instance = google_sql_database_instance.instance.name
+  host     = "me.com"
+  password = "gke_sql_wordpress_pass"
+}
+
+
+
+
+
+resource "kubernetes_deployment" "nginx" {
+  metadata {
+    name = "scalable-nginx-example"
+    labels = {
+      App = "ScalableNginxExample"
+    }
+  }
+
+  spec {
+    replicas = 2
+    selector {
+      match_labels = {
+        App = "ScalableNginxExample"
+      }
+    }
+    template {
+      metadata {
+        labels = {
+          App = "ScalableNginxExample"
+        }
+      }
+      spec {
+        container {
+          image = "nginx:1.7.8"
+          name  = "example"
+
+          port {
+            container_port = 80
+          }
+
+          resources {
+            limits {
+              cpu    = "0.5"
+              memory = "512Mi"
+            }
+            requests {
+              cpu    = "250m"
+              memory = "50Mi"
+            }
+          }
+        }
+      }
+    }
   }
 }
