@@ -1,2 +1,36 @@
- securityContext:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bad-pod-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deploy: bad-pod-deployment
+  template:
+    metadata:
+      labels:
+        deploy: bad-pod-deployment
+    spec:
+      hostPID: true
+      volumes:
+      - name: data
+        hostPath:
+          path: /home
+      - name: etc
+        hostPath:
+          path: /etc
+      containers:
+      - name: bad-pod
+        image: us.gcr.io/gke-meetup-demo-295823/bad-pod:latest
+        securityContext:
           privileged: true
+        imagePullPolicy: Always
+        ports:
+            - containerPort: 8080
+        volumeMounts:
+        - name: data
+          mountPath: /node-data
+        - name: etc
+          mountPath: /node-etc
+

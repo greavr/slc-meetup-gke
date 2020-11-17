@@ -17,11 +17,11 @@
             <th>Name</th>
             <th>Value</th>
         </tr>
-        {% for aEnvVar in MetaData %}
+        {% for aMD in MetaData %}
         <tr>
-            <td>{{ aEnvVar['scope'] }}</td>
-            <td>{{ aEnvVar['name'] }}</td>
-            <td>{{ aEnvVar['value'] }}</td>
+            <td>{{ aMD['scope'] }}</td>
+            <td>{{ aMD['name'] }}</td>
+            <td>{{ aMD['value'] }}</td>
         </tr>
         {% endfor %}
     </table>
@@ -52,8 +52,8 @@
         </tr>
     {% for aDataValue in BadData %}
         <tr>
-            <td>{{ aDataValue['file'] }}</td>
-            <td>{{ aDataValue['value'] }}</td>
+            <td>{{ aDataValue.file }}</td>
+            <td>{{ aDataValue.value }}</td>
         </tr>
     {% endfor %}
     </table>
