@@ -45,7 +45,7 @@ resource "google_storage_bucket_iam_member" "viewer" {
 ## Create GKE Cluster The Right Way
 resource "google_container_cluster" "more-secure" {
     provider    = google-beta
-    name        = "more-secure"
+    name        = "more-secure-cluster"
     location    = var.region
     
     remove_default_node_pool = false
@@ -85,7 +85,7 @@ resource "google_container_cluster" "more-secure" {
     private_cluster_config {
         enable_private_nodes   = true
         enable_private_endpoint = false
-        master_ipv4_cidr_block = "10.15.0.0/28"
+        master_ipv4_cidr_block = "10.17.0.0/28"
     }
 
 
@@ -95,8 +95,7 @@ resource "google_container_cluster" "more-secure" {
 
       service_account = "${google_service_account.gke_node.email}"
       oauth_scopes = [
-          "https://www.googleapis.com/auth/logging.write",
-          "https://www.googleapis.com/auth/monitoring"
+          "https://www.googleapis.com/auth/cloud-platform"
       ]
 
       metadata = {
@@ -145,9 +144,7 @@ resource "google_container_node_pool" "safe-nodepool1" {
     }
 
     oauth_scopes = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
-      "https://www.googleapis.com/auth/devstorage.read_only"
+      "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
 }
