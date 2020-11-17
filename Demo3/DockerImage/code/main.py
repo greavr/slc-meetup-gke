@@ -51,7 +51,7 @@ def GetMetaData():
     # Get Node MetaData
     baseURL = "http://metadata.google.internal"
     metaDataHeaders = {'Metadata-Flavor' : 'Google'}
-    valuesToFind = ["/computeMetadata/v1/project/numeric-project-id","/computeMetadata/v1/project/project-id","/computeMetadata/v1/instance/zone","/computeMetadata/v1/instance/service-accounts/","/computeMetadata/v1/instance/service-accounts/default/","/computeMetadata/v1/instance/service-accounts/default/scopes","/computeMetadata/v1/instance/service-accounts/default/token"]
+    valuesToFind = ["/computeMetadata/v1/instance/hostname","/computeMetadata/v1/instance/attributes/kube-env","/computeMetadata/v1/project/numeric-project-id","/computeMetadata/v1/project/project-id","/computeMetadata/v1/instance/zone","/computeMetadata/v1/instance/service-accounts/","/computeMetadata/v1/instance/service-accounts/default/","/computeMetadata/v1/instance/service-accounts/default/scopes","/computeMetadata/v1/instance/service-accounts/default/token"]
 
     resultSet = []
 
