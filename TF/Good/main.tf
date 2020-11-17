@@ -30,14 +30,17 @@ resource "google_project_iam_member" "k8s-member" {
   member  = "serviceAccount:${google_service_account.gke_node.email}"
 }
 
-# ## Assign IAM Permissions
-# resource "google_project_iam_member" "k8s-member" {
-#   count   = "${length(var.iam_roles)}"
-#   project = "${var.gcp-project-name}"
-#   role    = "${element(values(var.iam_roles), count.index)}"
-#   member  = "serviceAccount:${google_service_account.gke_node.email}"
-# }
+## Create GCR registry
+resource "google_container_registry" "registry" {
+  project  = var.gcp-project-name
+  location = "US"
+}
 
+resource "google_storage_bucket_iam_member" "viewer" {
+  bucket = google_container_registry.registry.id
+  role = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.gke_node.email}"
+}
 
 ## Create GKE Cluster The Right Way
 resource "google_container_cluster" "more-secure" {
@@ -45,7 +48,7 @@ resource "google_container_cluster" "more-secure" {
     name        = "more-secure"
     location    = var.region
     
-    remove_default_node_pool = true
+    remove_default_node_pool = false
     initial_node_count       = 1
 
     # Enable VPC Native
@@ -87,16 +90,19 @@ resource "google_container_cluster" "more-secure" {
 
 
     node_config {
-        oauth_scopes = [
-            "https://www.googleapis.com/auth/logging.write",
-            "https://www.googleapis.com/auth/monitoring"
-        ]
+      image_type = "COS_CONTAINERD"
+      machine_type = "e2-micro"
 
-        metadata = {
-            disable-legacy-endpoints = "true"
-        }
+      service_account = "${google_service_account.gke_node.email}"
+      oauth_scopes = [
+          "https://www.googleapis.com/auth/logging.write",
+          "https://www.googleapis.com/auth/monitoring"
+      ]
 
-          service_account = "${google_service_account.gke_node.email}"
+      metadata = {
+          disable-legacy-endpoints = "true"
+      }
+
     }
 
     timeouts {
@@ -105,17 +111,30 @@ resource "google_container_cluster" "more-secure" {
     }
 }
 
-resource "google_container_node_pool" "pre-empt_nodepool1" {
+resource "google_container_node_pool" "safe-nodepool1" {
   provider    = google-beta
-  name       = "pre-empt-noodepool1"
+  name       = "safe-noodepool1"
   location   = "${var.region}"
   cluster    = "${google_container_cluster.more-secure.name}"
   node_count = 1
 
 
   node_config {
-    preemptible  = true
-    machine_type = "e2-medium"
+    machine_type = "n1-standard-4"
+    image_type = "COS_CONTAINERD"
+
+    service_account = "${google_service_account.gke_node.email}"
+
+    # SandBox config
+    sandbox_config {
+      sandbox_type = "gvisor"
+    }
+
+    shielded_instance_config {
+      enable_secure_boot = true
+      enable_integrity_monitoring = true
+    }
+
 
     metadata = {
       disable-legacy-endpoints = "true"
@@ -127,7 +146,8 @@ resource "google_container_node_pool" "pre-empt_nodepool1" {
 
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring"
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/devstorage.read_only"
     ]
   }
 }

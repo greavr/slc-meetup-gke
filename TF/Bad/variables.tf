@@ -1,7 +1,7 @@
 # GCP Project Name
 variable "gcp-project-name" {
     type = string
-    default = "gke-meetup-demo"
+    default = "gke-meetup-demo-295823"
 }
 
 # Instance Region
