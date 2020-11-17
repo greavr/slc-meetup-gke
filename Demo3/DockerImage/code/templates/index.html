@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bad Pod</title>
+</head>
+
+<body>
+{% block content %}
+
+    <h3>Data Bad Pod Can Access</h3>
+
+    <h4>MetaData</h4>
+    Local MetaData Pod Can Access
+    <table border="1px">
+        <tr>
+            <th>Scope</th>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+        {% for aMD in MetaData %}
+        <tr>
+            <td>{{ aMD['scope'] }}</td>
+            <td>{{ aMD['name'] }}</td>
+            <td>{{ aMD['value'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h4>Environment Variables</h4>
+    Environment Variables the Pod can access
+    <table border="1px">
+        <tr>
+            <th>Scope</th>
+            <th>Var Name</th>
+            <th>Value</th>
+        </tr>
+    {% for aEnvVar in EnvVars %}
+        <tr>
+            <td>{{ aEnvVar.scope }} </td>
+            <td>{{ aEnvVar.name }}</td>
+            <td>{{ aEnvVar.value }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <h4>Bad Data</h4>
+    Stuff the pod can read 
+    <table border="1px">
+        <tr>
+            <th>File</th>
+            <th>Value</th>
+        </tr>
+    {% for aDataValue in BadData %}
+        <tr>
+            <td>{{ aDataValue.file }}</td>
+            <td>{{ aDataValue.value }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+       
+
+{% endblock %}
